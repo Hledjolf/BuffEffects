@@ -1,0 +1,184 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hledjolf.github.io/buffeffects/effects.schema.json",
+  "title": "BuffEffects effect definitions (buffeffects.effects 1.0)",
+  "description": "One sidecar per mod. The schema checks the shape; the loader also checks references, game ids, what the game can do, and the power curve. Where this schema and the loader disagree, the loader wins.",
+  "type": "object",
+  "required": ["format", "format_version", "mod", "effects"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "format": { "const": "buffeffects.effects" },
+    "format_version": { "type": "string", "pattern": "^(1\\.[0-9]+|0\\.5)$", "description": "1.0; 0.5 reads as 1.0" },
+    "mod": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^([A-Za-z0-9_.-]+:[A-Za-z0-9_.-]+|default)$" },
+        "name": { "type": "string" },
+        "version": { "type": "string" }
+      }
+    },
+    "effects": { "type": "array", "items": { "$ref": "#/$defs/effect" } },
+    "summons": { "description": "Reserved for buffeffects.summons; ignored by 1.0 readers." }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9_.-]+$" },
+    "text": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "amount": { "type": "number", "multipleOf": 0.001, "minimum": -100000000000, "maximum": 100000000000 },
+    "positive": { "type": "number", "multipleOf": 0.001, "exclusiveMinimum": 0, "maximum": 100000000000 },
+    "nonNegative": { "type": "number", "multipleOf": 0.001, "minimum": 0, "maximum": 100000000000 },
+    "color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+    "strings": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "stat": { "type": "string", "description": "health, stamina, mana, or <game>:<id>", "anyOf": [ { "enum": ["health", "stamina", "mana"] }, { "pattern": "^[a-z0-9_]+:.+$" } ] },
+    "cause": { "type": "string", "description": "A neutral cause (leaves, including shadow, holy, arcane, mind, sonic, disease and chaos, and the parents physical, elemental), a cause an adapter adds, or <game>:<id>" },
+    "condition": { "type": "object", "required": ["type"], "properties": { "type": { "type": "string" } }, "description": "CommandDeck's condition format (conditions.md)" },
+    "bounds": {
+      "type": "object", "required": ["min", "max"], "additionalProperties": false,
+      "properties": { "min": { "$ref": "#/$defs/positive" }, "max": { "$ref": "#/$defs/positive" } }
+    },
+    "duration": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "seconds": { "type": "number", "multipleOf": 0.001, "minimum": 0, "maximum": 100000000000, "description": "Run time. 0 is an instant effect: its once-only parts happen and it ends at once; it then goes alone." },
+        "infinite": { "const": true },
+        "world": { "enum": ["dawn", "dusk", "end_of_day"] },
+        "world_days": { "type": "integer", "minimum": 1, "maximum": 3650 }
+      },
+      "minProperties": 1,
+      "allOf": [
+        { "if": { "required": ["infinite"] }, "then": { "maxProperties": 1 } },
+        { "if": { "required": ["seconds"], "properties": { "seconds": { "const": 0 } } }, "then": { "maxProperties": 1 } },
+        { "not": { "required": ["world", "world_days"] } }
+      ]
+    },
+    "effect": {
+      "type": "object",
+      "required": ["id", "name", "duration", "parts", "bindings"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "$ref": "#/$defs/text", "description": "Plain text or lang:<key>" },
+        "description": { "$ref": "#/$defs/text" },
+        "harmful": { "type": "boolean", "default": false },
+        "category": { "$ref": "#/$defs/text" },
+        "tags": { "$ref": "#/$defs/strings" },
+        "duration": { "$ref": "#/$defs/duration" },
+        "reapply": { "enum": ["refresh", "extend", "ignore", "stack"], "default": "refresh" },
+        "stacking": {
+          "type": "object", "additionalProperties": false,
+          "properties": { "category": { "$ref": "#/$defs/id" }, "max_stacks": { "type": "integer", "minimum": 1, "maximum": 1000 },
+            "names": { "type": "array", "items": { "$ref": "#/$defs/text" }, "minItems": 1, "description": "One display name per stack count, as many as max_stacks; plain text or lang:<key>. Cosmetic" } }
+        },
+        "parts": { "type": "array", "items": { "$ref": "#/$defs/part" } },
+        "bindings": { "type": "object", "propertyNames": { "pattern": "^[a-z0-9_.-]+$" }, "additionalProperties": { "$ref": "#/$defs/binding" } },
+        "ends_when": { "$ref": "#/$defs/condition" },
+        "immune_if": { "$ref": "#/$defs/strings", "description": "Own short ids, <mod id>/<id>, or <game>:<id>" },
+        "cure_tags": { "$ref": "#/$defs/strings" },
+        "on_death": { "enum": ["clear", "keep", "restart"], "default": "clear" },
+        "caller_may_set": {
+          "type": "object", "additionalProperties": false,
+          "properties": { "duration": { "$ref": "#/$defs/bounds" }, "strength": { "$ref": "#/$defs/bounds" } }
+        },
+        "power": { "$ref": "#/$defs/amount" },
+        "permission": { "$ref": "#/$defs/text" }
+      },
+      "allOf": [
+        { "if": { "properties": { "reapply": { "const": "stack" } }, "required": ["reapply"] },
+          "then": { "required": ["stacking"], "properties": { "stacking": { "required": ["max_stacks"] } } },
+          "else": { "properties": { "stacking": { "allOf": [ { "not": { "required": ["max_stacks"] } }, { "not": { "required": ["names"] } } ] } } } }
+      ]
+    },
+    "part": {
+      "type": "object",
+      "required": ["type"],
+      "properties": { "type": { "type": "string" }, "required": { "type": "boolean", "default": true } },
+      "oneOf": [
+        { "properties": { "type": { "const": "stat" }, "required": {}, "stat": { "$ref": "#/$defs/stat" }, "op": { "enum": ["add", "multiply"] }, "amount": { "$ref": "#/$defs/amount" } },
+          "required": ["stat", "op", "amount"], "additionalProperties": false },
+        { "properties": { "type": { "const": "instant" }, "required": {}, "stat": { "$ref": "#/$defs/stat" }, "amount": { "$ref": "#/$defs/amount" }, "unit": { "enum": ["absolute", "percent"] } },
+          "required": ["stat", "amount", "unit"], "additionalProperties": false },
+        { "properties": { "type": { "const": "regen" }, "required": {}, "stat": { "$ref": "#/$defs/stat" }, "amount": { "$ref": "#/$defs/amount" }, "unit": { "enum": ["absolute", "percent"] },
+                          "interval": { "$ref": "#/$defs/positive" }, "breaks_on_hit": { "type": "boolean", "default": true } },
+          "required": ["stat", "amount", "unit", "interval"], "additionalProperties": false },
+        { "properties": { "type": { "const": "damage_over_time" }, "required": {}, "cause": { "$ref": "#/$defs/cause" }, "amount": { "$ref": "#/$defs/positive" }, "interval": { "$ref": "#/$defs/positive" } },
+          "required": ["cause", "amount", "interval"], "additionalProperties": false },
+        { "properties": { "type": { "const": "resist" }, "required": {}, "cause": { "$ref": "#/$defs/cause" }, "amount": { "type": "number", "multipleOf": 0.001, "minimum": -10, "maximum": 100000000000 } },
+          "required": ["cause", "amount"], "additionalProperties": false },
+        { "properties": { "type": { "const": "outgoing" }, "required": {}, "cause": { "$ref": "#/$defs/cause" }, "multiplier": { "$ref": "#/$defs/nonNegative" } },
+          "required": ["cause", "multiplier"], "additionalProperties": false },
+        { "properties": { "type": { "enum": ["speed", "knockback"] }, "required": {}, "multiplier": { "$ref": "#/$defs/nonNegative" } },
+          "required": ["multiplier"], "additionalProperties": false },
+        { "properties": { "type": { "const": "lock_movement" }, "required": {}, "all": { "type": "boolean" }, "jump": { "type": "boolean" }, "sprint": { "type": "boolean" }, "crouch": { "type": "boolean" } },
+          "anyOf": [ { "properties": { "all": { "const": true } }, "required": ["all"] }, { "properties": { "jump": { "const": true } }, "required": ["jump"] },
+                     { "properties": { "sprint": { "const": true } }, "required": ["sprint"] }, { "properties": { "crouch": { "const": true } }, "required": ["crouch"] } ],
+          "additionalProperties": false },
+        { "properties": { "type": { "const": "disable_actions" }, "required": {},
+                          "actions": { "type": "array", "minItems": 1, "items": { "enum": ["attack", "secondary", "ability1", "ability2", "ability3", "use", "dodge", "pickup"] } } },
+          "required": ["actions"], "additionalProperties": false },
+        { "properties": { "type": { "enum": ["invulnerable", "intangible"] }, "required": {} }, "additionalProperties": false },
+        { "properties": { "type": { "const": "hit" }, "required": {}, "cause": { "$ref": "#/$defs/cause" }, "amount": { "$ref": "#/$defs/positive" } },
+          "required": ["cause", "amount"], "additionalProperties": false,
+          "description": "Instant damage, once, when applied, through the target's resistances, with the actor credited for a kill." },
+        { "properties": { "type": { "const": "message" }, "required": {},
+                          "when": { "enum": ["apply", "refresh", "expire", "cure", "remove", "death", "every"] },
+                          "every": { "$ref": "#/$defs/positive" },
+                          "to": { "enum": ["self", "actor", "nearby"], "default": "self" }, "radius": { "$ref": "#/$defs/positive" },
+                          "text": { "$ref": "#/$defs/text" }, "pick": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/text" } },
+                          "channel": { "enum": ["chat"], "description": "notice is reserved: refused with not_yet" },
+                          "sense": { "enum": ["taste", "smell", "sound", "sight", "touch", "feeling"] },
+                          "variants": { "type": "array", "items": { "type": "object", "required": ["if"], "additionalProperties": false,
+                                        "properties": { "if": { "$ref": "#/$defs/condition" }, "text": { "$ref": "#/$defs/text" },
+                                                        "pick": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/text" } } },
+                                        "oneOf": [{ "required": ["text"] }, { "required": ["pick"] }] } },
+                          "once": { "type": "boolean" } },
+          "required": ["when"], "additionalProperties": false,
+          "oneOf": [{ "required": ["text"] }, { "required": ["pick"] }],
+          "allOf": [
+            { "if": { "properties": { "when": { "const": "every" } } }, "then": { "required": ["every"] }, "else": { "not": { "required": ["every"] } } },
+            { "if": { "required": ["radius"] }, "then": { "properties": { "to": { "const": "nearby" } }, "required": ["to"] } }
+          ],
+          "description": "One part per moment and audience (when and to): a second is refused with duplicate_message by the loader." },
+        { "properties": { "type": { "const": "light" }, "required": {}, "color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }, "radius": { "type": "number", "minimum": 1, "maximum": 15 } },
+          "required": ["color", "radius"], "additionalProperties": false, "description": "The bearer glows; the biggest radius on a bearer wins. Cosmetic" },
+        { "properties": { "type": { "const": "behavior" } }, "description": "Reserved: refused with not_yet by 1.0 readers" }
+      ]
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Ids inside a binding are the game's own, verbatim, with no prefix.",
+      "properties": {
+        "icon": { "type": "string" },
+        "look": {
+          "type": "object", "additionalProperties": false,
+          "properties": {
+            "while_active": {
+              "type": "object", "additionalProperties": false,
+              "properties": {
+                "tint_top": { "$ref": "#/$defs/color" }, "tint_bottom": { "$ref": "#/$defs/color" },
+                "particles": { "$ref": "#/$defs/strings" }, "model_vfx": { "type": "string" },
+                "screen_effect": { "type": "string" }, "animation": { "type": "string", "description": "Looping, where the game supports it. FlyIdle on Hytale is the floating pose." },
+                "see_through": { "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1, "multipleOf": 0.001,
+                                 "description": "How see-through the bearer is, 0.6 = 60%. The adapter makes the model VFX, so it doesn't go with model_vfx." }
+              },
+              "not": { "required": ["see_through", "model_vfx"] }
+            },
+            "on_apply": { "$ref": "#/$defs/oneShot" },
+            "on_remove": { "$ref": "#/$defs/oneShot" }
+          }
+        },
+        "shape": { "type": "string" },
+        "native": { "$ref": "#/$defs/strings" },
+        "parts": { "type": "array", "items": { "$ref": "#/$defs/part" } },
+        "ends_when": { "$ref": "#/$defs/condition" }
+      }
+    },
+    "oneShot": {
+      "type": "object", "additionalProperties": false,
+      "properties": { "animation": { "type": "string" }, "sound": { "type": "string" }, "particles": { "$ref": "#/$defs/strings" } }
+    }
+  }
+}

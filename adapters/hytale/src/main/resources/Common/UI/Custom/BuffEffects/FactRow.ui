@@ -1,0 +1,20 @@
+// One fact about an effect on the right: a bold label ("Duration", "Power", "Look") and its value beside it.
+// The value wraps under itself, so the row grows with it.
+$C = "../Common.ui";
+
+Group {
+  LayoutMode: Left;
+  Anchor: (Bottom: 6);
+
+  Label #Label {
+    Text: "";
+    Anchor: (Width: 150, Right: 10);
+    Style: (FontSize: 14, RenderBold: true, TextColor: #c9e3ff, Wrap: true);
+  }
+
+  Label #Value {
+    Text: "";
+    FlexWeight: 1;
+    Style: (FontSize: 14, TextColor: #ffffff(0.85), Wrap: true);
+  }
+}

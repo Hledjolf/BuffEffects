@@ -1,0 +1,207 @@
+{
+  "format": 1,
+  "plugin": "Hledjolf:BuffEffects",
+  "title": "BuffEffects",
+  "config": "config.json",
+  "sections": [
+    {
+      "id": "caps_resist",
+      "label": "Caps: resistance"
+    },
+    {
+      "id": "caps_flags",
+      "label": "Caps: flags"
+    },
+    {
+      "id": "caps_rating",
+      "label": "Caps: rating"
+    },
+    {
+      "id": "regen",
+      "label": "Regeneration"
+    },
+    {
+      "id": "messages",
+      "label": "Messages"
+    },
+    {
+      "id": "log",
+      "label": "Log"
+    }
+  ],
+  "keys": {
+    "OptedInEffects": {
+      "hidden": true
+    },
+    "OptedInMods": {
+      "hidden": true
+    },
+    "DisabledMods": {
+      "hidden": true
+    },
+    "MaxResistPlayers": {
+      "label": "Max resistance per cause, players",
+      "description": "1.0 is immunity. Never below the game's own ceiling (Hytale: 1.0).",
+      "section": "caps_resist",
+      "type": "float",
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "default": 0.9,
+      "restart": false
+    },
+    "MaxResistNpcs": {
+      "label": "Max resistance per cause, NPCs",
+      "section": "caps_resist",
+      "type": "float",
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "default": 0.9,
+      "restart": false
+    },
+    "CapAtZoneVanillaMax": {
+      "label": "Cap at the zone's vanilla maximum",
+      "section": "caps_resist",
+      "type": "bool",
+      "default": true,
+      "restart": false
+    },
+    "InvulnerableMaxSeconds": {
+      "label": "Invulnerable: max seconds",
+      "section": "caps_flags",
+      "type": "float",
+      "min": 0,
+      "max": 600,
+      "step": 1,
+      "default": 5,
+      "restart": false
+    },
+    "InvulnerableImmunitySeconds": {
+      "label": "Invulnerable: immunity afterwards (seconds)",
+      "section": "caps_flags",
+      "type": "float",
+      "min": 0,
+      "max": 3600,
+      "step": 5,
+      "default": 30,
+      "restart": false
+    },
+    "StunMaxSeconds": {
+      "label": "Stun: max seconds",
+      "section": "caps_flags",
+      "type": "float",
+      "min": 0,
+      "max": 600,
+      "step": 0.5,
+      "default": 3,
+      "restart": false
+    },
+    "RootMaxSeconds": {
+      "label": "Root: max seconds",
+      "section": "caps_flags",
+      "type": "float",
+      "min": 0,
+      "max": 600,
+      "step": 0.5,
+      "default": 5,
+      "restart": false
+    },
+    "DiminishingReturns": {
+      "label": "Diminishing returns on repeated stun or root",
+      "section": "caps_flags",
+      "type": "bool",
+      "default": true,
+      "restart": false
+    },
+    "MaxStepsPerEffect": {
+      "label": "Max steps per effect",
+      "description": "Also the power curve: effects above it are off until an operator opts in (/bfx optin).",
+      "section": "caps_rating",
+      "type": "float",
+      "min": 0,
+      "max": 20,
+      "step": 0.5,
+      "default": 2,
+      "restart": false
+    },
+    "MaxStepsTotal": {
+      "label": "Max steps in total on one target",
+      "section": "caps_rating",
+      "type": "float",
+      "min": 0,
+      "max": 40,
+      "step": 0.5,
+      "default": 3,
+      "restart": false
+    },
+    "SeparateNpcValues": {
+      "label": "Separate rating caps for NPCs",
+      "section": "caps_rating",
+      "type": "bool",
+      "default": false,
+      "restart": false
+    },
+    "MaxStepsPerEffectNpcs": {
+      "label": "NPCs: max steps per effect",
+      "section": "caps_rating",
+      "type": "float",
+      "min": 0,
+      "max": 20,
+      "step": 0.5,
+      "default": 2,
+      "restart": false
+    },
+    "MaxStepsTotalNpcs": {
+      "label": "NPCs: max steps in total",
+      "section": "caps_rating",
+      "type": "float",
+      "min": 0,
+      "max": 40,
+      "step": 0.5,
+      "default": 3,
+      "restart": false
+    },
+    "CapRegen": {
+      "label": "Cap regeneration below the zone's incoming damage",
+      "section": "regen",
+      "type": "bool",
+      "default": true,
+      "restart": false
+    },
+    "MessagesEnabled": {
+      "label": "Effects may send messages",
+      "section": "messages",
+      "type": "bool",
+      "default": true,
+      "restart": false
+    },
+    "GenericWearOff": {
+      "label": "Generic wear-off messages (for effects without their own expire message)",
+      "section": "messages",
+      "type": "bool",
+      "default": true,
+      "restart": false
+    },
+    "MessagesRadius": {
+      "label": "Radius for nearby messages (blocks)",
+      "section": "messages",
+      "type": "float",
+      "min": 1,
+      "max": 256,
+      "step": 1,
+      "default": 24,
+      "restart": false
+    },
+    "LogDays": {
+      "label": "Keep the ledger log for N days",
+      "section": "log",
+      "type": "int",
+      "min": 1,
+      "max": 3650,
+      "step": 1,
+      "default": 30,
+      "restart": false
+    }
+  }
+}

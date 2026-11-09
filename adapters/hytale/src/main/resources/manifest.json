@@ -1,0 +1,13 @@
+{
+  "Group": "Hledjolf",
+  "Name": "BuffEffects",
+  "Version": "${version}",
+  "Description": "Status effects on players and NPCs, timed or permanent, applied by other mods and by operators.",
+  "Authors": [
+    { "Name": "Hledjolf" }
+  ],
+  "Main": "buffeffects.hytale.BuffEffectsPlugin",
+  "ServerVersion": "*",
+  "IncludesAssetPack": true,
+  "Dependencies": { "ModSettingsManager:ModSettingsManager": "*", "Hledjolf:CommandDeck": ">=1.2.0" }
+}

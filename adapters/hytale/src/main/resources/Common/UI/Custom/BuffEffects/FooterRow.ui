@@ -1,0 +1,81 @@
+// The right pane's buttons: up to six, left to right (Save, Test on me, Revert, Duplicate, Delete, New in the
+// editor). The model sets each one's text and hides the ones it doesn't use. 6 x 130 = 780 pixels, inside the
+// right pane's ~806 (CommandDeck's measurement).
+$C = "../Common.ui";
+
+Group {
+  LayoutMode: Left;
+  Anchor: (Height: 44);
+
+  Button #B1 {
+    Anchor: (Width: 124, Height: 40, Right: 6);
+    LayoutMode: Top;
+    Padding: (Horizontal: 6, Vertical: 9);
+    Style: (...$C.@SecondaryButtonStyle);
+
+    Label #Label {
+      Text: "";
+      Style: (...$C.@SmallSecondaryButtonLabelStyle, Wrap: false);
+    }
+  }
+
+  Button #B2 {
+    Anchor: (Width: 124, Height: 40, Right: 6);
+    LayoutMode: Top;
+    Padding: (Horizontal: 6, Vertical: 9);
+    Style: (...$C.@SecondaryButtonStyle);
+
+    Label #Label {
+      Text: "";
+      Style: (...$C.@SmallSecondaryButtonLabelStyle, Wrap: false);
+    }
+  }
+
+  Button #B3 {
+    Anchor: (Width: 124, Height: 40, Right: 6);
+    LayoutMode: Top;
+    Padding: (Horizontal: 6, Vertical: 9);
+    Style: (...$C.@SecondaryButtonStyle);
+
+    Label #Label {
+      Text: "";
+      Style: (...$C.@SmallSecondaryButtonLabelStyle, Wrap: false);
+    }
+  }
+
+  Button #B4 {
+    Anchor: (Width: 124, Height: 40, Right: 6);
+    LayoutMode: Top;
+    Padding: (Horizontal: 6, Vertical: 9);
+    Style: (...$C.@SecondaryButtonStyle);
+
+    Label #Label {
+      Text: "";
+      Style: (...$C.@SmallSecondaryButtonLabelStyle, Wrap: false);
+    }
+  }
+
+  Button #B5 {
+    Anchor: (Width: 124, Height: 40, Right: 6);
+    LayoutMode: Top;
+    Padding: (Horizontal: 6, Vertical: 9);
+    Style: (...$C.@SecondaryButtonStyle);
+
+    Label #Label {
+      Text: "";
+      Style: (...$C.@SmallSecondaryButtonLabelStyle, Wrap: false);
+    }
+  }
+
+  Button #B6 {
+    Anchor: (Width: 124, Height: 40, Right: 6);
+    LayoutMode: Top;
+    Padding: (Horizontal: 6, Vertical: 9);
+    Style: (...$C.@SecondaryButtonStyle);
+
+    Label #Label {
+      Text: "";
+      Style: (...$C.@SmallSecondaryButtonLabelStyle, Wrap: false);
+    }
+  }
+}
