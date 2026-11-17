@@ -141,7 +141,7 @@
             { "if": { "required": ["radius"] }, "then": { "properties": { "to": { "const": "nearby" } }, "required": ["to"] } }
           ],
           "description": "One part per moment and audience (when and to): a second is refused with duplicate_message by the loader." },
-        { "properties": { "type": { "const": "light" }, "required": {}, "color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }, "radius": { "type": "number", "minimum": 1, "maximum": 15 } },
+        { "properties": { "type": { "const": "light" }, "required": {}, "color": { "type": "string", "pattern": "^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$", "description": "Colour is also brightness: Hytale has 16 steps per channel. #RGB gives each directly; #RRGGBB is divided by 17" }, "radius": { "type": "number", "minimum": 1, "maximum": 15 } },
           "required": ["color", "radius"], "additionalProperties": false, "description": "The bearer glows; the biggest radius on a bearer wins. Cosmetic" },
         { "properties": { "type": { "const": "behavior" } }, "description": "Reserved: refused with not_yet by 1.0 readers" }
       ]

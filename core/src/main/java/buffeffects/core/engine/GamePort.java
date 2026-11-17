@@ -69,6 +69,11 @@ public interface GamePort {
     /** The world time at which a clock point ({@code dawn}, {@code dusk}, {@code end_of_day}) or N days from now comes. */
     long worldTimeAt(String targetId, String point, int days);
 
+    /** A world time from {@link #worldTime} as people read it, for the ledger and the log (BFX-D039). */
+    default String worldTimeText(long worldMs) {
+        return worldMs + " ms of world time";
+    }
+
     /** A stat's maximum on the target ({@code health}...), for percent amounts in caps. NaN when unknown. */
     double statMax(String targetId, String stat);
 

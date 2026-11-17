@@ -30,6 +30,8 @@ public final class Application {
     public Long worldEnd;
     /** How {@link #worldEnd} was asked for: {@code dawn}, {@code 3 days}... */
     public String worldEndLabel;
+    /** {@link #worldEnd} as people read it (the game's clock): written to the ledger beside it, never read back as the time. */
+    public String worldEndText;
     /** Order of arrival on the target, for "the first to arrive keeps the slot" and "the oldest stack". */
     public final long seq;
     /** Held back by its stacking category (a stronger one counts). */
@@ -82,6 +84,7 @@ public final class Application {
         if (worldEnd != null) {
             m.put("world_end", worldEnd);
             m.put("world_end_label", worldEndLabel);
+            if (worldEndText != null) m.put("world_end_text", worldEndText);
         }
         if (keptThroughDeath) m.put("kept_through_death", true);
         if (!droppedParts.isEmpty()) m.put("dropped_parts", new ArrayList<>(droppedParts));
@@ -116,6 +119,7 @@ public final class Application {
         if (m.get("world_end") instanceof Number) {
             a.worldEnd = ((Number) m.get("world_end")).longValue();
             a.worldEndLabel = (String) m.get("world_end_label");
+            if (m.get("world_end_text") instanceof String t) a.worldEndText = t;
         }
         a.keptThroughDeath = Boolean.TRUE.equals(m.get("kept_through_death"));
         if (m.get("dropped_parts") instanceof List) for (Object o : (List<?>) m.get("dropped_parts")) a.droppedParts.add((String) o);

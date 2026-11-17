@@ -4,7 +4,9 @@
 
 Operators get the `/bfx` commands and an editor window, opened with `/bfx`, to browse every loaded effect, build new ones, test them on themselves, and see who carries what.
 
-Status: **1.0.0**. Tested on Hytale server **0.7.6**.
+Status: **1.0.1**. Tested on Hytale server **0.7.7**.
+
+Download: [CurseForge](https://www.curseforge.com/hytale/mods/buff-effects). Source and issues: [GitHub](https://github.com/Hledjolf/BuffEffects).
 
 *Requires [Mod Settings Manager](https://github.com/Hledjolf/ModSettingsManager) and [CommandDeck](https://github.com/Hledjolf/CommandDeck) 1.2.0 or later. Released alongside SpellCrafter 1.0 and CommandDeck 1.2.0.*
 
@@ -70,7 +72,7 @@ The caps are visible and changeable only by the server owner and the people they
 
 ## Compatibility
 
-- Hytale server **0.7.6**.
+- Hytale server **0.7.7**.
 - Dedicated servers and singleplayer.
 - Requires Mod Settings Manager and CommandDeck 1.2.0 or later.
 
@@ -80,7 +82,6 @@ The caps are visible and changeable only by the server owner and the people they
 - **Pale tints barely show,** for example the blue-white on a ghost look. Use saturated colours.
 - **The floating pose** lets the feet touch the ground: an effect can't raise the body yet.
 - **The game's own "clear effects"** leaves an effect's pose stuck (that's the game's behaviour). Removing the effect through BuffEffects ends the pose.
-- **Light is much stronger than its radius suggests:** a light part lights far beyond its radius. Use small radiuses (2 to 4) for now; the scale is fixed in a later version.
 
 ## For mod authors
 

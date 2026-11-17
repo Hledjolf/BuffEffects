@@ -637,7 +637,7 @@ public final class EffectsFormat {
                 case "light": {
                     allowed(m, ptr, Set.of("type", "required", "color", "radius"));
                     Object c = m.get("color");
-                    if (!(c instanceof String cs) || !cs.matches("#[0-9A-Fa-f]{6}")) invalid(ptr + "/color", "color is required, as #RRGGBB");
+                    if (!(c instanceof String cs) || !cs.matches("#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})")) invalid(ptr + "/color", "color is required, as #RGB or #RRGGBB");
                     else f.put("color", cs.toUpperCase(java.util.Locale.ROOT));
                     BigDecimal r = number(m.get("radius"), ptr + "/radius");
                     if (r != null && (r.compareTo(BigDecimal.ONE) < 0 || r.compareTo(BigDecimal.valueOf(15)) > 0)) invalid(ptr + "/radius", "radius is in blocks, from 1 to 15");

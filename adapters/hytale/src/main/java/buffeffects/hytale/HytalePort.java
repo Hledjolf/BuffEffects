@@ -18,6 +18,7 @@ import com.hypixel.hytale.server.core.console.ConsoleSender;
 import com.hypixel.hytale.server.core.entity.effect.ActiveEntityEffect;
 import com.hypixel.hytale.server.core.entity.effect.EffectControllerComponent;
 import com.hypixel.hytale.protocol.ColorLight;
+import com.hypixel.hytale.server.core.asset.util.ColorParseUtil;
 import com.hypixel.hytale.server.core.modules.entity.component.DynamicLight;
 import com.hypixel.hytale.server.core.modules.entity.component.Intangible;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
@@ -495,11 +496,34 @@ final class HytalePort implements GamePort {
     static int[] lightOf(EffectDef def) {
         for (Part p : def.partsOn("hytale")) {
             if (!p.type().equals("light")) continue;
-            int rgb = Integer.parseInt(p.str("color").substring(1), 16);
             int radius = (int) Math.round(Math.max(1, Math.min(15, p.num("radius", 8))));
-            return new int[] {radius, (rgb >> 16) & 255, (rgb >> 8) & 255, rgb & 255};
+            int[] c = lightColour(p.str("color"));
+            return new int[] {radius, c[0], c[1], c[2]};
         }
         return null;
+    }
+
+    /**
+     * A light's colour as Hytale's {@code ColorLight} channels, 0 to 15 each (QG-D076): colour is also brightness.
+     * The game's own parser does it ({@code #RGB} digit by digit, {@code #RRGGBB} each pair divided by 17), so a
+     * {@code light} part reads like a torch's {@code Light}. Its rule is kept as a fallback for a game version
+     * without that method.
+     */
+    static int[] lightColour(String hex) {
+        int[] c;
+        try {
+            ColorLight l = new ColorLight();
+            ColorParseUtil.hexStringToColorLightDirect(l, hex);
+            c = new int[] {l.red, l.green, l.blue};
+        } catch (LinkageError e) {
+            String h = hex.substring(1);
+            c = new int[3];
+            for (int i = 0; i < 3; i++) {
+                c[i] = h.length() == 3 ? Integer.parseInt(h.substring(i, i + 1), 16) : Integer.parseInt(h.substring(2 * i, 2 * i + 2), 16) / 17;
+            }
+        }
+        for (int i = 0; i < 3; i++) c[i] = Math.max(0, Math.min(15, c[i]));
+        return c;
     }
 
     /** Bearers whose DynamicLight BuffEffects set: only those are cleared, never a light of the game's own. */
@@ -605,6 +629,23 @@ final class HytalePort implements GamePort {
         Tracked t = targets.get(targetId);
         Clock c = t == null || t.world == null ? null : clocks.get(t.world);
         return c == null ? 0 : c.gameMs();
+    }
+
+    /** Hytale's world clock is an {@code Instant} counted from 0001-01-01 (a new world starts there): day 1 is that day. */
+    static final long YEAR_ONE_MS = java.time.Instant.parse("0001-01-01T00:00:00Z").toEpochMilli();
+
+    @Override
+    public String worldTimeText(long worldMs) {
+        return worldTimeText(worldMs, daySeconds());
+    }
+
+    /** "world day 2, 22:12": the day counted from the world's start, and the time of day on its clock. */
+    static String worldTimeText(long worldMs, long daySeconds) {
+        long dayMs = daySeconds * 1000L;
+        long since = worldMs - YEAR_ONE_MS;
+        long day = Math.floorDiv(since, dayMs) + 1;
+        long minuteOfDay = Math.floorMod(since, dayMs) * 1440 / dayMs;
+        return String.format(java.util.Locale.ROOT, "world day %d, %02d:%02d", day, minuteOfDay / 60, minuteOfDay % 60);
     }
 
     public long worldTimeAt(String targetId, String point, int days) {

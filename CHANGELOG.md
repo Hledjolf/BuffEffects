@@ -2,6 +2,11 @@
 
 Newest first.
 
+## 1.0.1 (2026-11-17), Hytale 0.7.7
+
+- Fixed: a light part lit everything around the bearer to full brightness. Its colour now uses the game's own light scale (16 steps per channel), so a light reads like a torch. A colour may also be written as #RGB. For a torch-like glow use #ba9, the game's torch; brighter colours give a stronger, wider light.
+- The server log names who applied an effect, and its source, when the effect ends. An effect that lasts until a time of day or for in-game days logs when it ends ("world day 2, 22:12"), and keeps that in the ledger beside the raw time.
+
 ## 1.0.0 (2026-11-08), Hytale 0.7.6
 
 First release.

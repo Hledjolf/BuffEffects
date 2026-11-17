@@ -11,6 +11,6 @@ Elsewhere? Pass their paths:
 gradlew jar -PhytaleServerJar=<path to HytaleServer.jar> -PcommandDeckJar=<path to CommandDeck-1.2.0.jar>
 ```
 
-The plugin is written to `build\mods\BuffEffects-1.0.0.jar`. Put it in your mods folder, with Mod Settings Manager and CommandDeck 1.2.0 or later.
+The plugin is written to `build\mods\BuffEffects-1.0.1.jar`. Put it in your mods folder, with Mod Settings Manager and CommandDeck 1.2.0 or later.
 
 `docs\effects.schema.json` is the JSON schema for effect sidecars (`buffeffects.effects` 1.0).

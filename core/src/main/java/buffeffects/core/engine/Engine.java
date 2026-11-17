@@ -184,12 +184,17 @@ public final class Engine {
 
     // ---------------------------------------------------------------------------------------- applying
 
+    /** The world-clock end the apply being logged set, as text (BFX-D039); read and cleared by {@link #apply}. */
+    private String lastWorldEnd;
+
     synchronized ApplyResult apply(String caller, String target, String ref, ApplyOptions o, boolean dryRun) {
         if (o == null) o = ApplyOptions.none();
         ApplyResult r = applyInner(caller, target, ref, o, dryRun);
+        String worldEnd = lastWorldEnd;
+        lastWorldEnd = null;
         log.accept((dryRun ? "check " : "apply ") + caller + " -> " + target + " " + ref + ": " + r.line()
                 + (o.sourceId() != null ? " source_id=" + o.sourceId() : "") + (o.actor() != null ? " actor=" + o.actor() : "")
-                + (o.asPerson() != null ? " as_person=" + o.asPerson() : ""));
+                + (o.asPerson() != null ? " as_person=" + o.asPerson() : "") + (worldEnd != null ? " ends " + worldEnd : ""));
         if (!r.applied() && !dryRun) emit(caller, new BfxEvent(BfxEvent.Type.REFUSED, null, r.code(), ref, target));
         return r;
     }
@@ -310,6 +315,7 @@ public final class Engine {
         if (worldPoint != null || worldDays > 0) {
             worldEnd = port.worldTimeAt(target, worldPoint, worldDays);
             worldLabel = worldPoint != null ? worldPoint : worldDays + (worldDays == 1 ? " day" : " days");
+            lastWorldEnd = port.worldTimeText(worldEnd) + " (" + worldLabel + ")";
         }
         boolean suppress = Boolean.TRUE.equals(o.suppressOnApply());
         if (!existing.isEmpty() && def.reapply() != EffectDef.Reapply.STACK) {
@@ -326,6 +332,7 @@ public final class Engine {
             if (worldEnd != null && (a.worldEnd == null || worldEnd > a.worldEnd)) {
                 a.worldEnd = worldEnd;
                 a.worldEndLabel = worldLabel;
+                a.worldEndText = port.worldTimeText(worldEnd);
             }
             a.caller = caller;
             a.sourceId = o.sourceId();
@@ -357,6 +364,7 @@ public final class Engine {
         a.infinite = infinite;
         a.worldEnd = worldEnd;
         a.worldEndLabel = worldLabel;
+        a.worldEndText = worldEnd == null ? null : port.worldTimeText(worldEnd);
         a.droppedParts = new ArrayList<>(dropped);
         a.steps = rating == null ? null : rating.steps();
         a.messages = new ArrayList<>(o.messages());
@@ -638,7 +646,8 @@ public final class Engine {
             boolean generic = !d.duration().isInstant() && !isNative(a.effect) && !silentCosmetic(a.effect, d);
             messages.moment(a, d, when, appsOf(a.target, a.effect).size() + 1, settings, conditions, random, generic);
         }
-        log.accept("removed " + a.id + " " + a.effect + " from " + a.target + ": " + reason);
+        log.accept("removed " + a.id + " " + a.effect + " from " + a.target + ": " + reason + " (applied by " + a.caller
+                + (a.sourceId != null ? ", source_id=" + a.sourceId : "") + ")");
         emit(null, new BfxEvent(BfxEvent.Type.REMOVED, snapshot(a), reason, a.effect, a.target));
     }
 
